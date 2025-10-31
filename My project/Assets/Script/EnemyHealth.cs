@@ -1,26 +1,18 @@
 using UnityEngine;
-using System;
+using System; // Required for Action
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int health = 100;
-    public event Action onEnemyDeath; // 👈 Add this line
+    public float health = 100f;
 
-    private Animator animator;
-    private bool isDead = false;
+    // Event to notify when this enemy dies
+    public event Action onEnemyDeath;
 
-    void Start()
+    public void TakeDamage(float amount)
     {
-        animator = GetComponentInChildren<Animator>();
-    }
+        health -= amount;
 
-    public void TakeDamage(int damage)
-    {
-        if (isDead) return;
-
-        health -= damage;
-
-        if (health <= 0)
+        if (health <= 0f)
         {
             Die();
         }
@@ -28,10 +20,10 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
-        isDead = true;
-        animator.SetBool("IsDead", true);
+        // Call event so spawner knows this enemy is dead
+        onEnemyDeath?.Invoke();
 
-        onEnemyDeath?.Invoke(); // 👈 Notify spawner
-        Destroy(gameObject, 3f); // Destroy after death animation
+        // Destroy this enemy
+        Destroy(gameObject);
     }
 }
