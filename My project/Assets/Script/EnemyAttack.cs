@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyAttack : MonoBehaviour
 {
     [Header("Attack Settings")]
-    public float attackRange = 2f;
+    public float attackRange = 2.5f;
     public float damage = 10f;
     public float attackRate = 1f;
 
@@ -14,11 +14,25 @@ public class EnemyAttack : MonoBehaviour
 
     void Start()
     {
-        animator = GetComponent<Animator>();
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        animator = GetComponentInChildren<Animator>();
 
-        if (player != null)
-            playerHealth = player.GetComponent<PlayerHealth>();
+        // Find correct player with PlayerHealth attached
+        GameObject[] taggedPlayers = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject obj in taggedPlayers)
+        {
+            PlayerHealth foundHealth = obj.GetComponent<PlayerHealth>();
+            if (foundHealth != null)
+            {
+                player = obj.transform;
+                playerHealth = foundHealth;
+                break;
+            }
+        }
+
+        if (player == null)
+            Debug.LogWarning("⚠️ No Player with PlayerHealth found!");
+        else
+            Debug.Log("✅ Found player: " + player.name);
     }
 
     void Update()
@@ -38,17 +52,26 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
-    // This function is called by the Animation Event
+    // 👇 Called by animation event
     public void DealDamage()
     {
-        if (playerHealth == null) return;
+        if (playerHealth == null || player == null)
+        {
+            Debug.LogWarning("⚠️ DealDamage() called but playerHealth is missing!");
+            return;
+        }
 
         float distance = Vector3.Distance(transform.position, player.position);
 
         if (distance <= attackRange)
         {
-            playerHealth.TakeDamage(damage);
-            Debug.Log("Player took damage!");
+            playerHealth.TakeDamage((int)damage);
+            Debug.Log($"💥 Player took {damage} damage!");
+
+        }
+        else
+        {
+            Debug.Log("⚠️ Attack missed — player out of range.");
         }
     }
 }

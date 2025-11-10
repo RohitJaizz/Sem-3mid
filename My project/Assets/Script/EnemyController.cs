@@ -27,10 +27,20 @@ public class EnemyController : MonoBehaviour
 
         if (distance > stoppingDistance)
         {
-            // Move toward player
+            // Move toward player but ignore Y-axis
             Vector3 dir = (player.position - transform.position).normalized;
+            dir.y = 0f;
+
             transform.position += dir * moveSpeed * Time.deltaTime;
             transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
+
+           // Optional: stick to ground
+RaycastHit hit;
+if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 5f))
+{
+    transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
+}
+
 
             animator.SetBool("IsAttacking", false);
             animator.SetFloat("Speed", 1f);
@@ -39,7 +49,6 @@ public class EnemyController : MonoBehaviour
         {
             // Attack player
             animator.SetFloat("Speed", 0f);
-
             if (Time.time >= nextAttackTime)
             {
                 StartCoroutine(Attack());
@@ -51,14 +60,9 @@ public class EnemyController : MonoBehaviour
     IEnumerator Attack()
     {
         animator.SetBool("IsAttacking", true);
-
-        // Wait for animation to hit moment
-        yield return new WaitForSeconds(0.5f); // adjust to animation timing
-
-        // Here you can damage the player
+        yield return new WaitForSeconds(0.5f); // animation hit timing
         // player.GetComponent<PlayerHealth>()?.TakeDamage(attackDamage);
-
-        yield return new WaitForSeconds(0.5f); // wait till animation ends
+        yield return new WaitForSeconds(0.5f); // end delay
         animator.SetBool("IsAttacking", false);
     }
 
@@ -67,6 +71,6 @@ public class EnemyController : MonoBehaviour
         isDead = true;
         animator.SetBool("IsDead", true);
         GetComponent<CharacterController>().enabled = false;
-        this.enabled = false; // stop logic
+        this.enabled = false;
     }
 }

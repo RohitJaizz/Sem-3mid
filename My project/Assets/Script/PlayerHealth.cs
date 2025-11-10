@@ -49,30 +49,30 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
+        Debug.Log($"💔 Player took {amount} damage! Health now: {currentHealth}");
+ 
         targetFill = currentHealth / maxHealth;
 
         if (currentHealth <= 0)
             Die();
     }
 
-    private void Die()
-    {
-        if (isDead) return;
-        isDead = true;
+   private void Die()
+{
+    if (isDead) return;
+    isDead = true;
 
-        Debug.Log("Player Died!");
-        Time.timeScale = 0f; // Pause the game
+    Debug.Log("Player Died!");
+    Time.timeScale = 0f; // Pause the game
 
-        if (restartPanel != null)
-            restartPanel.SetActive(true);
-    }
+    // ✅ Unlock and show the cursor
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
 
-    public void RestartGame()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
+    if (restartPanel != null)
+        restartPanel.SetActive(true);
+}
+
 
     private void UpdateHealthUIInstant()
     {
