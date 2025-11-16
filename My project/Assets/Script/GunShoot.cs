@@ -8,6 +8,9 @@ public class GunShoot : MonoBehaviour
     public float laserSpeed = 50f;
     public float laserLife = 2f;
 
+    [Header("Audio")]
+    public AudioSource shootSound;   // 🔊 NEW
+
     void Update()
     {
         if (Input.GetButtonDown("Fire1"))
@@ -18,10 +21,16 @@ public class GunShoot : MonoBehaviour
 
     void ShootLaser()
     {
+        if (shootSound != null)
+        {
+            shootSound.Play();   // 🔊 play sound when firing
+        }
+
         if (laserPrefab == null || firePoint == null) return;
 
         GameObject laser = Instantiate(laserPrefab, firePoint.position, firePoint.rotation);
         Rigidbody rb = laser.GetComponent<Rigidbody>();
+
         if (rb == null)
         {
             rb = laser.AddComponent<Rigidbody>();
